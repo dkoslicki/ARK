@@ -73,6 +73,8 @@ counts_per_sequence_sums = sum(counts_per_sequence,2);
 for i=1:size(counts_per_sequence,1)
 	counts_per_sequence[i,:] = counts_per_sequence[i,:]/counts_per_sequence_sums[i];
 end
+#Type conversion
+counts_per_sequence=convert(Array{Float64,2},counts_per_sequence);
 
 #Now run the algorithm
 if training_file == "Quikr" #Using the quikr database
@@ -81,8 +83,7 @@ if training_file == "Quikr" #Using the quikr database
 
 	#Form the Aaux
 	Aaux = [ones(1,size(A,2)); lambda*A];
-	
-	
+
 	if  clustering_type == "Random"
 		#Now for ARK
 		# Initialization
@@ -105,12 +106,14 @@ if training_file == "Quikr" #Using the quikr database
 	elseif clustering_type == "Deterministic"
 		#Initialization
 		eta=0.005;
-		Composition_ARK_Quikr  = [];
+		Composition_ARK_Quikr  = zeros(1,size(A,2));
 		ChangeInComposition_ARK_Quikr = 1;
 		NoOfClusters_Quikr = 0;
-#		data_ARK_Quikr = [];
 		MaxNoOfClusters = number_of_clusters;
+		
 		while (ChangeInComposition_ARK_Quikr  > eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
+		    
+		    #Perform the clustering
 		    if NoOfClusters_Quikr == 0
     		    C_ARK_Quikr = mean(counts_per_sequence,1);
     		    ClusterProbability = [1.0];
@@ -118,19 +121,25 @@ if training_file == "Quikr" #Using the quikr database
     	    	(C_ARK_Quikr, ClusterProbability) = LBG2(counts_per_sequence, C_ARK_Quikr, ClusterProbability);  # LBG algorithm increases the number of clusters as output from the input no of clusters by one 
 		    end    
     		NoOfClusters_Quikr = length(ClusterProbability);    
+    		
 	    	# After clustering, Quikr is used for each cluster
 	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors)
 		    result_ARK_Quikr = zeros(1,size(Aaux,2));    	
+		    
+		    #Perform Quikr on each cluster
     		for i=1:NoOfClusters_Quikr
-	        	s = [0; lambda*Mu_ARK_Quikr(:,i)];        
+	        	s = [0; lambda*Mu_ARK_Quikr[:,i]]; 
 	        	tmp_ARK_Quikr = lsqnonneg(Aaux, s)';
-    		    result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; % This is the linear additive composition estimation
+    		    result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; # This is the linear additive composition estimation
 	    	end
+	    	
+	    	#Record the change in the composition
 		    if NoOfClusters_Quikr > 1
         		ChangeInComposition_ARK_Quikr  = norm(Composition_ARK_Quikr[end,:] - result_ARK_Quikr, 1);
-	    	end              
-#		    data_ARK_Quikr = [data_ARK_Quikr; NoOfClusters_Quikr ChangeInComposition_ARK_Quikr];
-    		Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
+	    	end
+	    	
+	    	#Save the composition results
+			Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
 		end
 		result_ARK_Quikr = Composition_ARK_Quikr[end,:];
 	else
