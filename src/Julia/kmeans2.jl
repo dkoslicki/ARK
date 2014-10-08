@@ -52,4 +52,5 @@ function  kmeans2(T, K, maxIter)
 	end
 	# exception of zero probability cluster, turn the NANs to the zero vector
 	C(find(isnan(C))) = 0;
+	return (C,w)
 end
