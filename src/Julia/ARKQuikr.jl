@@ -82,27 +82,64 @@ if training_file == "Quikr" #Using the quikr database
 	#Form the Aaux
 	Aaux = [ones(1,size(A,2)); lambda*A];
 	
-	#Now for ARK
-	# Initialization
-	NoOfClusters_Quikr = number_of_clusters;
 	
-	(C_ARK_Quikr, ClusterProbability) = kmeans2(counts_per_sequence, NoOfClusters_Quikr, 1000); #Max of 1000 iterates of the clustering algorithm
-	Mu_ARK_Quikr = C_ARK_Quikr';  #Cluster mean vectors
-    result_ARK_Quikr = zeros(1,size(A,2));
+	if  clustering_type == "Random"
+		#Now for ARK
+		# Initialization
+		NoOfClusters_Quikr = number_of_clusters;
+		
+		(C_ARK_Quikr, ClusterProbability) = kmeans2(counts_per_sequence, NoOfClusters_Quikr, 1000); #Max of 1000 iterates of the clustering algorithm
+		Mu_ARK_Quikr = C_ARK_Quikr';  #Cluster mean vectors
+	    result_ARK_Quikr = zeros(1,size(A,2));
+    	
+	    #Perform Quikr on each cluster
+    	for i=1:NoOfClusters_Quikr
+        	s = [0; lambda*Mu_ARK_Quikr[:,i]];
+	        tmp_ARK_Quikr = lsqnonneg(Aaux, s)';
+    	    result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; # This is the linear additive composition estimation
+	    end
     
-    #Perform Quikr on each cluster
-    for i=1:NoOfClusters_Quikr
-        s = [0; lambda*Mu_ARK_Quikr[:,i]];
-        tmp_ARK_Quikr = lsqnonneg(Aaux, s)';
-        result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; # This is the linear additive composition estimation
-    end
+    	#Normalize the solution
+	    result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
+	
+	elseif clustering_type == "Deterministic"
+		#Initialization
+		eta=0.005;
+		Composition_ARK_Quikr  = [];
+		ChangeInComposition_ARK_Quikr = 1;
+		NoOfClusters_Quikr = 0;
+#		data_ARK_Quikr = [];
+		MaxNoOfClusters = number_of_clusters;
+		while (ChangeInComposition_ARK_Quikr  > eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
+		    if NoOfClusters_Quikr == 0
+    		    C_ARK_Quikr = mean(counts_per_sequence,1);
+    		    ClusterProbability = [1.0];
+	    	else
+    	    	(C_ARK_Quikr, ClusterProbability) = LBG2(counts_per_sequence, C_ARK_Quikr, ClusterProbability);  # LBG algorithm increases the number of clusters as output from the input no of clusters by one 
+		    end    
+    		NoOfClusters_Quikr = length(ClusterProbability);    
+	    	# After clustering, Quikr is used for each cluster
+	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors)
+		    result_ARK_Quikr = zeros(1,size(Aaux,2));    	
+    		for i=1:NoOfClusters_Quikr
+	        	s = [0; lambda*Mu_ARK_Quikr(:,i)];        
+	        	tmp_ARK_Quikr = lsqnonneg(Aaux, s)';
+    		    result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; % This is the linear additive composition estimation
+	    	end
+		    if NoOfClusters_Quikr > 1
+        		ChangeInComposition_ARK_Quikr  = norm(Composition_ARK_Quikr[end,:] - result_ARK_Quikr, 1);
+	    	end              
+#		    data_ARK_Quikr = [data_ARK_Quikr; NoOfClusters_Quikr ChangeInComposition_ARK_Quikr];
+    		Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
+		end
+		result_ARK_Quikr = Composition_ARK_Quikr[end,:];
+	else
+		error("Invalid clustering_type. Choose one of: Deterministic, Random")
+	end
     
-    #Normalize the solution
-    result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
-    
-    #write the solution to file
-	output_level = 0; #Since we don't have hypothetical organisms
-	ConvertToCAMIOutput(result_ARK_Quikr, "../../data/trainset7_taxonomy.txt", output_level, output_file)
+    	#write the solution to file
+		output_level = 0; #Since we don't have hypothetical organisms
+		ConvertToCAMIOutput(result_ARK_Quikr, "../../data/trainset7_taxonomy.txt", output_level, output_file)
 	
 elseif training_file == "SEK" #using the split Quikr database (known as the SEK database)
 
