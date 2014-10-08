@@ -5,6 +5,6 @@ function pdist(X::Matrix, Y::Matrix)
 	Yt = Y';
 	XX = sum(X.*X,2);
 	YY = sum(Yt.*Yt,1);
-	D = XX[:,ones(1,n)] + YY[ones(1,m), :] - 2*X*Yt;
+	D = XX[:,ones(n)] + YY[ones(m), :] - 2*X*Yt;
 	return D
 end
