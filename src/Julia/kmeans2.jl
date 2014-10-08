@@ -18,7 +18,7 @@ function  kmeans2(T, K, maxIter)
 	iter = 0;
 	delta = 1;
 	
-	print("$(delta > eps && maxIter > iter)\n")
+
 	while delta > eps && maxIter > iter
 	    # D is distance and Q is its index in C, returns only the smallest
 	    # euclidean distances.
@@ -50,6 +50,7 @@ function  kmeans2(T, K, maxIter)
     
 	    delta = abs(dist - dist_old)/dist_old;
     	dist_old = dist;
+    	print(w)
     
 	end
 	# exception of zero probability cluster, turn the NANs to the zero vector
