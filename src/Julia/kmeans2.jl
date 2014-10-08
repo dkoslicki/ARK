@@ -17,6 +17,7 @@ function  kmeans2(T, K, maxIter)
 	dist_old = 1;
 	iter = 0;
 	delta = 1;
+	w = zeros(1, K);
 	
 
 	while delta > eps && maxIter > iter
@@ -53,7 +54,6 @@ function  kmeans2(T, K, maxIter)
 
 	end
 	# exception of zero probability cluster, turn the NANs to the zero vector
-	print(w)
 	C[find(isnan(C))] = 0;
 	return (C,w)
 end
