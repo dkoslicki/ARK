@@ -9,8 +9,7 @@
 
 ###################
 #To do:
-#1. Add the deterministic clustering option
-#2. Add the SEK database option
+#1. Add the SEK database option
 #####################
 
 using ArgParse
