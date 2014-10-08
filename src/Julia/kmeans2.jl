@@ -22,6 +22,7 @@ function  kmeans2(T, K, maxIter)
 	    # D is distance and Q is its index in C, returns only the smallest
 	    # euclidean distances.
 	    p_dists = pdist(C, T);
+	    p_dists=convert(Array{Float64,2},p_dists); #this is needed since otherwise findmin() fails on it.
 	    (D,Q) = findmin(p_dists,1);
     	Q = map(x->ind2sub(size(p_dists), x)[1], Q); #Q is an ordered pair. I just want the location in the row.
     
