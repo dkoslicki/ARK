@@ -17,7 +17,8 @@ function  kmeans2(T, K, maxIter)
 	dist_old = 1;
 	iter = 0;
 	delta = 1;
-
+	
+	print("$(delta > eps && maxIter > iter)\n")
 	while delta > eps && maxIter > iter
 	    # D is distance and Q is its index in C, returns only the smallest
 	    # euclidean distances.
