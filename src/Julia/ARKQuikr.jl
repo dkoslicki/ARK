@@ -43,7 +43,7 @@ function parse_commandline()
 		"--number_of_clusters", "-n"
 			help = "The number of clusters to use (at max). Default = 10"
 			default = 10
-		"--clustering_type", "-t"
+		"--clustering_type", "-c"
 			help = "Clustering type: Deterministic (slow), Random (fast). Default is Random"
 			default = "Random"
 			
