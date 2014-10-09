@@ -76,7 +76,7 @@ end
 counts_per_sequence=convert(Array{Float64,2},counts_per_sequence);
 
 #Now run the algorithm
-if training_file == "Quikr" #Using the quikr database
+if training_database == "Quikr" #Using the quikr database
 	#Read in the training database
 	A = h5read("../../data/trainset7_112011N6C.h5","/data");
 
@@ -150,7 +150,7 @@ if training_file == "Quikr" #Using the quikr database
 		output_level = 0; #Since we don't have hypothetical organisms
 		ConvertToCAMIOutput(result_ARK_Quikr, "../../data/trainset7_taxonomy.txt", output_level, output_file)
 	
-elseif training_file == "SEK" #using the split Quikr database (known as the SEK database)
+elseif training_database == "SEK" #using the split Quikr database (known as the SEK database)
 
 	#Read in the training database
 	A = h5read("../../data/trainset7_112011_allseqslongerthan700-SEKTrainingMatrix-bitShift100-windowLength400-N6C.h5","/data");
