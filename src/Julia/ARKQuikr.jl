@@ -105,13 +105,13 @@ if training_database == "Quikr" #Using the quikr database
 	
 	elseif clustering_type == "Deterministic"
 		#Initialization
-		eta=0.005;
+		Eta=0.005;
 		Composition_ARK_Quikr  = zeros(1,size(A,2));
 		ChangeInComposition_ARK_Quikr = 1;
 		NoOfClusters_Quikr = 0;
 		MaxNoOfClusters = number_of_clusters;
 		
-		while (ChangeInComposition_ARK_Quikr  > eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
+		while (ChangeInComposition_ARK_Quikr  > Eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
 		    
 		    #Perform the clustering
 		    if NoOfClusters_Quikr == 0
@@ -185,13 +185,13 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
 	
 	elseif clustering_type == "Deterministic"
 		#Initialization
-		eta=0.005;
+		Eta=0.005;
 		Composition_ARK_Quikr  = zeros(1,size(blockMatrix,1));
 		ChangeInComposition_ARK_Quikr = 1;
 		NoOfClusters_Quikr = 0;
 		MaxNoOfClusters = number_of_clusters;
 		
-		while (ChangeInComposition_ARK_Quikr  > eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
+		while (ChangeInComposition_ARK_Quikr  > Eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
 		    
 		    #Perform the clustering
 		    if NoOfClusters_Quikr == 0
