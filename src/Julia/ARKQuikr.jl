@@ -82,7 +82,8 @@ if training_file == "Quikr" #Using the quikr database
 
 	#Form the Aaux
 	Aaux = [ones(1,size(A,2)); lambda*A];
-
+	
+	#Do either the random clustering or deterministic
 	if  clustering_type == "Random"
 		#Now for ARK
 		# Initialization
@@ -154,25 +155,79 @@ elseif training_file == "SEK" #using the split Quikr database (known as the SEK 
 	#Read in the training database
 	A = h5read("../../data/trainset7_112011_allseqslongerthan700-SEKTrainingMatrix-bitShift100-windowLength400-N6C.h5","/data");
 	
-	#Read in the block matrix to return to the trainset7_SEK basis
-	blockMatrix = h5read("../../data/trainset7_112011_allseqslongerthan700-SEKTrainingMatrix-bitShift100-windowLength400-blockMatrix.h5","/data");
-
 	#Form the Aaux
 	Aaux = [ones(1,size(A,2)); lambda*A];
-	yaux = [0;lambda*counts];
-
-	#Perform the reconstruction
-	x = lsqnonneg(Aaux, yaux);
 	
-	#Return to the trainset7_SEK basis
-	x = blockMatrix*x;
-
-	#Normalize the output
-	x = x/sum(x);
-
+	#Read in the block matrix to return to the trainset7_SEK basis
+	blockMatrix = h5read("../../data/trainset7_112011_allseqslongerthan700-SEKTrainingMatrix-bitShift100-windowLength400-blockMatrix.h5","/data");
+	
+	#Do either the random clustering or deterministic
+	if  clustering_type == "Random"
+		#Now for ARK
+		# Initialization
+		NoOfClusters_Quikr = number_of_clusters;
+		
+		(C_ARK_Quikr, ClusterProbability) = kmeans2(counts_per_sequence, NoOfClusters_Quikr, 1000); #Max of 1000 iterates of the clustering algorithm
+		Mu_ARK_Quikr = C_ARK_Quikr';  #Cluster mean vectors
+	    result_ARK_Quikr = zeros(1,size(blockMatrix,1));
+    	
+	    #Perform Quikr on each cluster
+    	for i=1:NoOfClusters_Quikr
+        	s = [0; lambda*Mu_ARK_Quikr[:,i]];
+	        tmp = lsqnonneg(Aaux, s);
+	        tmp_ARK_Quikr = blockMatrix * tmp;
+       		tmp_ARK_Quikr = tmp_ARK_Quikr';
+	        result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr;
+	    end
+    
+    	#Normalize the solution
+	    result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
+	
+	elseif clustering_type == "Deterministic"
+		#Initialization
+		eta=0.005;
+		Composition_ARK_Quikr  = zeros(1,size(blockMatrix,1));
+		ChangeInComposition_ARK_Quikr = 1;
+		NoOfClusters_Quikr = 0;
+		MaxNoOfClusters = number_of_clusters;
+		
+		while (ChangeInComposition_ARK_Quikr  > eta) && (NoOfClusters_Quikr < MaxNoOfClusters)  # (stopping criteria for LBG based clustering)
+		    
+		    #Perform the clustering
+		    if NoOfClusters_Quikr == 0
+    		    C_ARK_Quikr = mean(counts_per_sequence,1);
+    		    ClusterProbability = [1.0];
+	    	else
+    	    	(C_ARK_Quikr, ClusterProbability) = LBG2(counts_per_sequence, C_ARK_Quikr, ClusterProbability);  # LBG algorithm increases the number of clusters as output from the input no of clusters by one 
+		    end    
+    		NoOfClusters_Quikr = length(ClusterProbability);    
+    		
+	    	# After clustering, Quikr is used for each cluster
+	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors)
+		    result_ARK_Quikr = zeros(1,size(blockMatrix,1));
+		    
+		    #Perform Quikr on each cluster
+    		for i=1:NoOfClusters_Quikr
+	        	s = [0; lambda*Mu_ARK_Quikr[:,i]]; 
+		        tmp = lsqnonneg(Aaux, s);
+		        tmp_ARK_Quikr = blockMatrix * tmp;
+       			tmp_ARK_Quikr = tmp_ARK_Quikr';
+	        	result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr;
+	    	end
+	    	
+	    	#Record the change in the composition
+		    if NoOfClusters_Quikr > 1
+        		ChangeInComposition_ARK_Quikr  = norm(Composition_ARK_Quikr[end,:] - result_ARK_Quikr, 1);
+	    	end
+	    	
+	    	#Save the composition results
+			Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
+		end
+		result_ARK_Quikr = Composition_ARK_Quikr[end,:];
+		
 	#Write the output to file
 	output_level = 0; #Since we don't have hypothetical organisms
-	ConvertToCAMIOutput(x, "../../data/trainset7_SEK_taxonomy.txt", output_level, output_file)
+	ConvertToCAMIOutput(result_ARK_Quikr, "../../data/trainset7_SEK_taxonomy.txt", output_level, output_file)
 end
 
 
