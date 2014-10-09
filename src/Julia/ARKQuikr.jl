@@ -123,7 +123,7 @@ if training_database == "Quikr" #Using the quikr database
     		NoOfClusters_Quikr = length(ClusterProbability);    
     		
 	    	# After clustering, Quikr is used for each cluster
-	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors)
+	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors
 		    result_ARK_Quikr = zeros(1,size(Aaux,2));    	
 		    
 		    #Perform Quikr on each cluster
@@ -203,7 +203,7 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
     		NoOfClusters_Quikr = length(ClusterProbability);    
     		
 	    	# After clustering, Quikr is used for each cluster
-	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors)
+	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors
 		    result_ARK_Quikr = zeros(1,size(blockMatrix,1));
 		    
 		    #Perform Quikr on each cluster
@@ -224,10 +224,15 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
 			Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
 		end
 		result_ARK_Quikr = Composition_ARK_Quikr[end,:];
+	else
+		error("Invalid clustering_type. Choose one of: Deterministic, Random")
+	end
 		
 	#Write the output to file
 	output_level = 0; #Since we don't have hypothetical organisms
 	ConvertToCAMIOutput(result_ARK_Quikr, "../../data/trainset7_SEK_taxonomy.txt", output_level, output_file)
+else
+	error("Incorrect training database choice (-t). Options are: Quikr, SEK")
 end
 
 
