@@ -73,8 +73,8 @@ k=6;
 #Put a random suffix on it just in case there are multiple ones running
 suffix = abs(rand(Int,1));
 success(`$kmer_counts_per_sequence_path -i $input_file -k $k -c -s ` |> "Julia_temp_file_$(suffix[1]).txt");
-counts_per_sequence_dlm = readdlm("Julia_temp_file_$(suffix).txt", '\t'); #Read in sparse format (I,J,V)
-success(`rm Julia_temp_file_$(suffix).txt`)
+counts_per_sequence_dlm = readdlm("Julia_temp_file_$(suffix[1]).txt", '\t'); #Read in sparse format (I,J,V)
+success(`rm Julia_temp_file_$(suffix[1]).txt`)
 I = int(counts_per_sequence_dlm[:,1].+1);
 J = int(counts_per_sequence_dlm[:,2].+1);
 V = counts_per_sequence_dlm[:,3];
