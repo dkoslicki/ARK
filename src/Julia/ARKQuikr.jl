@@ -142,6 +142,7 @@ if training_database == "Quikr" #Using the quikr database
 			Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
 		end
 		result_ARK_Quikr = Composition_ARK_Quikr[end,:];
+		result_ARK_Quikr = result_ARK_Quikr / sum(result_ARK_Quikr)
 	else
 		error("Invalid clustering_type. Choose one of: Deterministic, Random")
 	end
@@ -224,6 +225,7 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
 			Composition_ARK_Quikr  = [Composition_ARK_Quikr; result_ARK_Quikr]; 
 		end
 		result_ARK_Quikr = Composition_ARK_Quikr[end,:];
+		result_ARK_Quikr = result_ARK_Quikr / sum(result_ARK_Quikr);
 	else
 		error("Invalid clustering_type. Choose one of: Deterministic, Random")
 	end
