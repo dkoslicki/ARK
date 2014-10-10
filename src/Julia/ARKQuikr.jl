@@ -64,8 +64,24 @@ clustering_type = parsed_args["clustering_type"]
 
 k=6;
 #Form the 6mer counts
-counts_per_sequence_mult = map(x->int(split(strip(x))),readlines(`$kmer_counts_per_sequence_path -i $input_file -k $k -c`));
-counts_per_sequence = [counts_per_sequence_mult[i][j] for i=1:length(counts_per_sequence_mult),j=1:4^k];
+#Takes too long to do this step. The count code finishes quickly, but for some reason it takes Julia a long time to read it in...
+#So just write to file, and then read it in using readdlm()
+#counts_per_sequence_mult = map(x->int(split(strip(x))),readlines(`$kmer_counts_per_sequence_path -i $input_file -k $k -c`));
+#counts_per_sequence = [counts_per_sequence_mult[i][j] for i=1:length(counts_per_sequence_mult),j=1:4^k];
+
+#Write as sparse format as this saves both time and space
+#Put a random suffix on it just in case there are multiple ones running
+suffix = abs(rand(Int,1));
+success(`$kmer_counts_per_sequence_path -i $input_file -k $k -c -s ` |> "Julia_temp_file_$(suffix[1]).txt");
+counts_per_sequence_dlm = readdlm("Julia_temp_file_$(suffix).txt", '\t'); #Read in sparse format (I,J,V)
+success(`rm Julia_temp_file_$(suffix).txt`)
+I = int(counts_per_sequence_dlm[:,1].+1);
+J = int(counts_per_sequence_dlm[:,2].+1);
+V = counts_per_sequence_dlm[:,3];
+#Make sure the dimension is correct
+counts_per_sequence_sparse = sparse(I, J, V, maximum(I), 4^6); #Convert to sparse matrix
+counts_per_sequence = full(counts_per_sequence_sparse); #Make dense matrix
+
 
 #Normalize the rows
 counts_per_sequence_sums = sum(counts_per_sequence,2);
