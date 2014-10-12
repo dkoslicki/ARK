@@ -1,6 +1,3 @@
-#Warning
-*This repository is still in development, please check back soon*
-
 #ARKQuikr
 
 ARKQuikr is an AggRegation of Kmers modification of the QUadratic, Iterative, K-mer based Reconstruction technique  (Quikr) that utilizes sparsity promoting ideas from the field of compressed sensing to reconstruct the composition of a bacterial community (when the input data is a FASTA file of 16S rRNA reads). This extremely fast method comes with a several databases that can be custom trained. Typically reconstruction is accurate down to the genus level.
@@ -30,3 +27,17 @@ After cloning and installing the [dna\_utils](http://github.com/EESI/dna-utils/)
 
 
 ## Usage ##
+The code only works on FASTA files (not FASTQ or any other format).
+Here's an example using 10 clusters:
+```
+julia ARKQuikr.jl -i /path/to/FASTA.fa -o /path/to/Output.tsv -n 10
+```
+Another example using deterministic clustering, 5 clusters, and the SEK training database:
+```
+julia ARKQuikr.jl -i /path/to/FASTA.fa -o /path/to/Output.tsv -n 10 -c Deterministic -t SEK
+```
+
+## Further Notes ##
+If your installation of dna_utils results in the executable being located in a non-standard location, specify this location using the option ` -t /path/to/./kmer_counts_per_sequence `
+
+It is very important that your installation of BLAS matches the architecture of your hardware (if not, significant increases in computation time might be observed). We recommend using OpenBLAS.

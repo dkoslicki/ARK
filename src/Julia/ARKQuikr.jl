@@ -79,7 +79,7 @@ I = int(counts_per_sequence_dlm[:,1].+1);
 J = int(counts_per_sequence_dlm[:,2].+1);
 V = counts_per_sequence_dlm[:,3];
 #Make sure the dimension is correct
-counts_per_sequence_sparse = sparse(I, J, V, maximum(I), 4^6); #Convert to sparse matrix
+counts_per_sequence_sparse = sparse(I, J, V, maximum(I), 4^k); #Convert to sparse matrix
 counts_per_sequence = full(counts_per_sequence_sparse); #Make dense matrix
 
 
@@ -107,17 +107,17 @@ if training_database == "Quikr" #Using the quikr database
 		
 		(C_ARK_Quikr, ClusterProbability) = kmeans2(counts_per_sequence, NoOfClusters_Quikr, 1000); #Max of 1000 iterates of the clustering algorithm
 		Mu_ARK_Quikr = C_ARK_Quikr';  #Cluster mean vectors
-	    result_ARK_Quikr = zeros(1,size(A,2));
+		result_ARK_Quikr = zeros(1,size(A,2));
     	
 	    #Perform Quikr on each cluster
     	for i=1:NoOfClusters_Quikr
         	s = [0; lambda*Mu_ARK_Quikr[:,i]];
 	        tmp_ARK_Quikr = lsqnonneg(Aaux, s)';
-    	    result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; # This is the linear additive composition estimation
-	    end
+			result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr; # This is the linear additive composition estimation
+		end
     
     	#Normalize the solution
-	    result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
+		result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
 	
 	elseif clustering_type == "Deterministic"
 		#Initialization
@@ -189,16 +189,16 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
 	    result_ARK_Quikr = zeros(1,size(blockMatrix,1));
     	
 	    #Perform Quikr on each cluster
-    	for i=1:NoOfClusters_Quikr
-        	s = [0; lambda*Mu_ARK_Quikr[:,i]];
-	        tmp = lsqnonneg(Aaux, s);
-	        tmp_ARK_Quikr = blockMatrix * tmp;
-       		tmp_ARK_Quikr = tmp_ARK_Quikr';
-	        result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr;
-	    end
+		for i=1:NoOfClusters_Quikr
+			s = [0; lambda*Mu_ARK_Quikr[:,i]];
+			tmp = lsqnonneg(Aaux, s);
+			tmp_ARK_Quikr = blockMatrix * tmp;
+			tmp_ARK_Quikr = tmp_ARK_Quikr';
+			result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr;
+		end
     
     	#Normalize the solution
-	    result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
+		result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
 	
 	elseif clustering_type == "Deterministic"
 		#Initialization
