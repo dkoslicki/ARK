@@ -43,4 +43,4 @@ The output format is consistent with the [CAMI challenge](http://www.cami-challe
 ## Further Notes ##
 If your installation of dna_utils results in the executable being located in a non-standard location, specify this location using the option ` -k /path/to/./kmer_counts_per_sequence `
 
-It is very important that your installation of BLAS matches the architecture of your hardware (if not, significant increases in computation time might be observed). We recommend using OpenBLAS!
+It is very important that your installation of BLAS matches the architecture of your hardware (if not, significant increases in computation time might be observed). We recommend using OpenBLAS.
