@@ -30,13 +30,13 @@ After cloning and installing the [dna\_utils](http://github.com/EESI/dna-utils/)
 The code only works on FASTA files (not FASTQ or any other format).
 Here's an example using 10 clusters:
 ```
-julia ARKQuikr.jl -i /path/to/FASTA.fa -o /path/to/Output.tsv -n 10
+julia ARK.jl -i /path/to/FASTA.fa -o /path/to/Output.tsv -n 10
 ```
 Another example using deterministic clustering, 5 clusters, and the SEK training database:
 ```
-julia ARKQuikr.jl -i /path/to/FASTA.fa -o /path/to/Output.tsv -n 10 -c Deterministic -t SEK
+julia ARK.jl -i /path/to/FASTA.fa -o /path/to/Output.tsv -n 10 -c Deterministic -t SEK
 ```
-Other options are available, see `julia ARKQuikr.jl -h`.
+Other options are available, see `julia ARK.jl -h`.
 
 The output format is consistent with the [CAMI challenge](http://www.cami-challenge.org/) and is similar to the output produced by [MetaPhlAn](http://huttenhower.sph.harvard.edu/metaphlan).
 
