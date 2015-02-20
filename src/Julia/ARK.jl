@@ -1,16 +1,13 @@
 # ==============================================================================
-# ARKQuikr.jl
+# ARK.jl
 #
 # Authors: David Koslicki (david.koslicki@math.oregonstate.edu)
 #
 # Takes a fasta file as input, performs the ARK algorithm on it,
-# and then performs the Quikr Algorithm on it.
+# and then performs the Quikr Algorithm on it using either the Quikr or SEK
+# training database.
 # ==============================================================================
 
-###################
-#To do:
-#1. Add the SEK database option
-#####################
 
 using ArgParse
 using HDF5
@@ -186,9 +183,8 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
 		
 		(C_ARK_Quikr, ClusterProbability) = kmeans2(counts_per_sequence, NoOfClusters_Quikr, 1000); #Max of 1000 iterates of the clustering algorithm
 		Mu_ARK_Quikr = C_ARK_Quikr';  #Cluster mean vectors
-	    result_ARK_Quikr = zeros(1,size(blockMatrix,1));
-    	
-	    #Perform Quikr on each cluster
+		result_ARK_Quikr = zeros(1,size(blockMatrix,1));
+		#Perform Quikr on each cluster
 		for i=1:NoOfClusters_Quikr
 			s = [0; lambda*Mu_ARK_Quikr[:,i]];
 			tmp = lsqnonneg(Aaux, s);
@@ -196,8 +192,8 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
 			tmp_ARK_Quikr = tmp_ARK_Quikr';
 			result_ARK_Quikr = result_ARK_Quikr + ClusterProbability[i]*tmp_ARK_Quikr;
 		end
-    
-    	#Normalize the solution
+		
+		#Normalize the solution
 		result_ARK_Quikr = result_ARK_Quikr/sum(result_ARK_Quikr);
 	
 	elseif clustering_type == "Deterministic"
@@ -215,13 +211,13 @@ elseif training_database == "SEK" #using the split Quikr database (known as the 
     		    C_ARK_Quikr = mean(counts_per_sequence,1);
     		    ClusterProbability = [1.0];
 	    	else
-    	    	(C_ARK_Quikr, ClusterProbability) = LBG2(counts_per_sequence, C_ARK_Quikr, ClusterProbability);  # LBG algorithm increases the number of clusters as output from the input no of clusters by one 
-		    end    
+    	    	    (C_ARK_Quikr, ClusterProbability) = LBG2(counts_per_sequence, C_ARK_Quikr, ClusterProbability);  # LBG algorithm increases the number of clusters as output from the input no of clusters by one 
+		end    
     		NoOfClusters_Quikr = length(ClusterProbability);    
     		
 	    	# After clustering, Quikr is used for each cluster
 	    	Mu_ARK_Quikr = C_ARK_Quikr';  # Cluster mean vectors
-		    result_ARK_Quikr = zeros(1,size(blockMatrix,1));
+		result_ARK_Quikr = zeros(1,size(blockMatrix,1));
 		    
 		    #Perform Quikr on each cluster
     		for i=1:NoOfClusters_Quikr
