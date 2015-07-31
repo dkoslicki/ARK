@@ -82,6 +82,9 @@ counts_per_sequence = full(counts_per_sequence_sparse); #Make dense matrix
 
 #Normalize the rows
 counts_per_sequence_sums = sum(counts_per_sequence,2);
+if length(find(counts_per_sequence_sums.==0))>0
+	error("There are sequences with no k-mers. Probably due to sequences consisting of all N's. Please remove these and try again")
+end
 for i=1:size(counts_per_sequence,1)
 	counts_per_sequence[i,:] = counts_per_sequence[i,:]/counts_per_sequence_sums[i];
 end
